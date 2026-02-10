@@ -1,0 +1,60 @@
+.person-container {
+  max-width: 520px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #f5f7fa;
+}
+
+.person-container h2 {
+  margin-bottom: 15px;
+}
+
+/* FORM CARD */
+.loan-form {
+  background: #fff;
+  padding: 18px;
+  border: 1px solid #ccc;
+  margin-bottom: 20px;
+}
+
+.loan-form label {
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: 10px;
+  display: block;
+}
+
+.loan-form input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+  margin-bottom: 12px;
+  border: 1px solid #aaa;
+}
+
+.loan-form button {
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+/* LOANS CARD */
+.loan-list {
+  background: #fff;
+  padding: 18px;
+  border: 1px solid #ccc;
+}
+
+.loan-list h3 {
+  margin-bottom: 10px;
+}
+
+.loan-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.loan-item:last-child {
+  border-bottom: none;
+}

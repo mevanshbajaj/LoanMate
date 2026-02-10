@@ -1,0 +1,116 @@
+.person-detail {
+  padding: 24px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.header-left h1 {
+  margin: 0;
+}
+
+.sub-text {
+  font-size: 13px;
+  color: #666;
+}
+
+/* RIGHT SIDE BUTTON FIX */
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+/* REAL BUTTON STYLE */
+.add-loan-btn {
+  display: inline-flex;          /* 🔥 KEY */
+  align-items: center;
+  justify-content: center;
+
+  background-color: #4a6cf7;
+  color: white;
+  border: none;
+
+  padding: 8px 14px;             /* 🔥 SMALLER */
+  border-radius: 8px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* Cards */
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+  margin-bottom: 20px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.loan-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.loan-item:last-child {
+  border-bottom: none;
+}
+
+.loan-note {
+  font-size: 13px;
+  color: #666;
+}
+
+.loan-interest {
+  font-weight: 600;
+  color: #4a6cf7;
+}
+.person-container {
+  padding: 20px;
+  max-width: 500px;
+  margin: auto;
+}
+
+.loan-form {
+  border: 1px solid #ccc;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.loan-form input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+}
+
+.loan-form button {
+  padding: 8px 12px;
+}
+
+.loan-list {
+  border: 1px solid #ccc;
+  padding: 15px;
+}
+
+.loan-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+}
+
