@@ -1,88 +1,76 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import "./AddPerson.css";
 
 function AddPerson() {
-  const navigate = useNavigate();
-
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-
+  const handleSubmit = async () => {
     if (!name || !phone) {
-      setError("Name and phone are required");
+      alert("Name and phone are required");
       return;
     }
 
     try {
-      setLoading(true);
-
       const res = await fetch("http://localhost:5000/api/persons", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, address })
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ name, phone, address }),
       });
 
       const data = await res.json();
 
-      if (!res.ok) throw new Error(data.message);
+      if (!res.ok) {
+        alert(data.message || "Error adding person");
+        return;
+      }
 
-      navigate("/dashboard");
+      alert("Person added successfully");
+
+      setName("");
+      setPhone("");
+      setAddress("");
     } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+      alert("Server error");
     }
   };
 
   return (
-    <div className="add-person">
-      <form className="person-form" onSubmit={handleSubmit}>
-        <h2 className="page-title">Add Person</h2>
-        <p className="page-subtitle">
-          Add a new person to manage loans
-        </p>
+    <div className="addperson-page">
+      <div className="addperson-card">
+        <h2>Add New Person</h2>
 
-        {error && <p className="error-text">{error}</p>}
+        <label>Name</label>
+        <input
+          type="text"
+          placeholder="Enter full name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
 
-        <div className="form-group">
-          <label>Name</label>
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Enter full name"
-          />
-        </div>
+        <label>Phone</label>
+        <input
+          type="text"
+          placeholder="Enter phone number"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+        />
 
-        <div className="form-group">
-          <label>Phone</label>
-          <input
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="Enter phone number"
-          />
-        </div>
+        <label>Address</label>
+        <textarea
+          placeholder="Enter address"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+        />
 
-        <div className="form-group">
-          <label>Address</label>
-          <textarea
-            rows="3"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            placeholder="Enter address (optional)"
-          />
-        </div>
-
-        <button className="submit-btn" disabled={loading}>
-          {loading ? "Saving..." : "Add Person"}
+        <button onClick={handleSubmit}>
+          Save Person
         </button>
-      </form>
+      </div>
     </div>
   );
 }

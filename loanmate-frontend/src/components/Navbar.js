@@ -1,78 +1,45 @@
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import "./Navbar.css";
 
 function Navbar() {
   const navigate = useNavigate();
-  const location = useLocation();
+  const token = localStorage.getItem("token");
 
-  const styles = {
-    navbar: {
-      height: "64px",
-      background: "#ffffff",
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      padding: "0 28px",
-      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
-      position: "sticky",
-      top: 0,
-      zIndex: 100
-    },
-    logo: {
-      fontSize: "20px",
-      fontWeight: 700,
-      color: "#000000",
-      cursor: "pointer"
-    },
-    actions: {
-      display: "flex",
-      gap: "14px"
-    },
-    primaryBtn: {
-      padding: "8px 16px",
-      borderRadius: "6px",
-      border: "none",
-      background: "#4a6cf7",
-      color: "#fff",
-      fontWeight: 600,
-      cursor: "pointer"
-    },
-    secondaryBtn: {
-      padding: "8px 16px",
-      borderRadius: "6px",
-      border: "1px solid #ddd",
-      background: "transparent",
-      fontWeight: 600,
-      cursor: "pointer"
+  let userEmail = "";
+
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      userEmail = decoded.email;
+    } catch (err) {
+      console.error("Invalid token");
     }
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/");
   };
 
   return (
-    <div style={styles.navbar}>
-      <span
-        style={styles.logo}
-        onClick={() => navigate("/dashboard")}
-      >
-        LoanMate
-      </span>
+    <div className="navbar">
+      <div className="nav-left">
+        <h3 className="logo">LoanMate</h3>
 
-      <div style={styles.actions}>
-        <button
-          style={{
-            ...styles.primaryBtn,
-            background:
-              location.pathname === "/add-person"
-                ? "#324bdc"
-                : styles.primaryBtn.background
-          }}
-          onClick={() => navigate("/add-person")}
-        >
+        <Link to="/dashboard" className="nav-link">
+          Dashboard
+        </Link>
+
+        <Link to="/add-person" className="nav-link">
           Add Person
-        </button>
+        </Link>
+      </div>
 
-        <button
-          style={styles.secondaryBtn}
-          onClick={() => navigate("/")}
-        >
+      <div className="nav-right">
+        {userEmail && <span className="email">{userEmail}</span>}
+
+        <button onClick={handleLogout} className="logout-btn">
           Logout
         </button>
       </div>
