@@ -34,7 +34,12 @@ function PersonDetail() {
   // FETCH LOANS ON PAGE LOAD
   // =========================
   useEffect(() => {
-    fetch(`http://localhost:5000/api/loans/person/${id}`)
+    fetch(`http://localhost:5000/api/loans/person/${id}`, {
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  },
+})
+
       .then((res) => res.json())
       .then((data) => setLoans(data))
       .catch((err) => console.error(err));
@@ -51,7 +56,11 @@ function PersonDetail() {
 
     const res = await fetch("http://localhost:5000/api/loans", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+  "Content-Type": "application/json",
+  Authorization: `Bearer ${localStorage.getItem("token")}`,
+},
+
       body: JSON.stringify({
         personId: id,
         amount: Number(amount),
@@ -89,7 +98,11 @@ function PersonDetail() {
       `http://localhost:5000/api/loans/${loanId}/pay`,
       {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+  "Content-Type": "application/json",
+  Authorization: `Bearer ${localStorage.getItem("token")}`,
+},
+
         body: JSON.stringify({ amount: Number(payAmount) }),
       }
     );

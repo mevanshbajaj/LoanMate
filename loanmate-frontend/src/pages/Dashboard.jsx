@@ -1,13 +1,12 @@
+import "./Dashboard.css";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Dashboard.css";
 
 function Dashboard() {
-  const navigate = useNavigate();
-
   const [persons, setPersons] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchPersons();
@@ -15,37 +14,38 @@ function Dashboard() {
 
   const fetchPersons = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/persons");
+      const res = await fetch("http://localhost:5000/api/persons", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
       const data = await res.json();
-      setPersons(data);
-    } catch (error) {
-      console.error("Failed to fetch persons", error);
+
+      if (res.ok) {
+        setPersons(Array.isArray(data) ? data : []);
+      } else {
+        alert(data.message || "Failed to fetch persons");
+      }
+    } catch (err) {
+      alert("Server error while fetching persons");
     } finally {
       setLoading(false);
     }
   };
 
-  // 🔍 Client-side search (name or phone)
-  const filteredPersons = persons.filter((person) =>
-    person.name.toLowerCase().includes(search.toLowerCase()) ||
-    person.phone.includes(search)
+  const filtered = persons.filter(
+    (p) =>
+      p.name.toLowerCase().includes(search.toLowerCase()) ||
+      p.phone.includes(search)
   );
-
-  const getInitials = (name = "") =>
-    name
-      .split(" ")
-      .map(word => word[0])
-      .join("")
-      .toUpperCase();
 
   return (
     <div className="dashboard">
-      {/* Header */}
       <div className="dashboard-header">
-        <h2>Dashboard</h2>
+        <h1>Dashboard</h1>
 
         <input
-          className="search-input"
           type="text"
           placeholder="Search by name or phone"
           value={search}
@@ -53,41 +53,36 @@ function Dashboard() {
         />
       </div>
 
-      {/* Stats */}
-      <div className="stats">
-        <div className="stat-card">
-          <h4>Total Persons</h4>
-          <p>{persons.length}</p>
-        </div>
+      <div className="stat-card">
+        <h4>Total Persons</h4>
+        <p>{persons.length}</p>
       </div>
 
-      {loading && <p>Loading persons...</p>}
+      <div className="person-list">
+        {loading ? (
+          <p>Loading...</p>
+        ) : filtered.length === 0 ? (
+          <p>No persons found</p>
+        ) : (
+          filtered.map((person) => (
+            <div
+              key={person._id}
+              className="person-card"
+              onClick={() => navigate(`/person/${person._id}`)}
+              style={{ cursor: "pointer" }}
+            >
+              <div className="avatar">
+                {person.name.charAt(0).toUpperCase()}
+              </div>
 
-
-{/* Person Grid */}
-<div className="person-grid">
-  {!loading && filteredPersons.map((person) => (
-    <div
-      key={person._id}
-      className="person-card"
-      onClick={() => navigate(`/person/${person._id}`)}
-    >
-      <div className="avatar">
-        {getInitials(person.name)}
+              <div>
+                <h3>{person.name}</h3>
+                <p>{person.phone}</p>
+              </div>
+            </div>
+          ))
+        )}
       </div>
-      <div className="person-info">
-        <h4>{person.name}</h4>
-        <p>{person.phone}</p>
-      </div>
-    </div>
-  ))}
-</div>
-
-
-      {/* Empty Search Result */}
-      {!loading && filteredPersons.length === 0 && (
-        <p style={{ marginTop: 20 }}>No matching person found.</p>
-      )}
     </div>
   );
 }
