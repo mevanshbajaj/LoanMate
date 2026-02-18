@@ -1,45 +1,33 @@
+/* ================= NAVBAR ================= */
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 20px;
+  padding: 14px 20px;
   background: #4a6cf7;
   color: white;
-  flex-wrap: wrap;
-}
-
-/* LEFT SECTION */
-.nav-left {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  flex-wrap: wrap; /* 🔥 THIS FIXES OVERFLOW */
 }
 
 .logo {
   font-size: 18px;
   font-weight: bold;
-  white-space: nowrap;
+}
+
+/* Desktop menu */
+.desktop-menu {
+  display: flex;
+  align-items: center;
+  gap: 18px;
 }
 
 .nav-link {
   color: white;
   text-decoration: none;
   font-weight: 500;
-  white-space: nowrap;
-}
-
-/* RIGHT SECTION */
-.nav-right {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  flex-wrap: wrap;
 }
 
 .email {
   font-size: 14px;
-  word-break: break-word;
 }
 
 .logout-btn {
@@ -49,21 +37,72 @@
   cursor: pointer;
 }
 
-/* 🔥 MOBILE FIX */
-@media (max-width: 600px) {
-  .navbar {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
+/* Hamburger */
+.hamburger {
+  font-size: 24px;
+  cursor: pointer;
+  display: none;
+}
+
+/* ================= SIDEBAR ================= */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -260px;
+  width: 240px;
+  height: 100%;
+  background: white;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  transition: left 0.3s ease;
+  z-index: 1000;
+}
+
+.sidebar.open {
+  left: 0;
+}
+
+.sidebar a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+}
+
+.sidebar button {
+  padding: 8px;
+  border: none;
+  background: #4a6cf7;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.close-btn {
+  align-self: flex-end;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* Overlay */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 999;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+  .desktop-menu {
+    display: none;
   }
 
-  .nav-left {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .nav-right {
-    width: 100%;
-    justify-content: space-between;
+  .hamburger {
+    display: block;
   }
 }

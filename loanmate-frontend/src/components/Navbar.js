@@ -1,9 +1,11 @@
 import { useNavigate, Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import { useState } from "react";
 import "./Navbar.css";
 
 function Navbar() {
   const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
   const token = localStorage.getItem("token");
 
   let userEmail = "";
@@ -23,27 +25,64 @@ function Navbar() {
   };
 
   return (
-    <div className="navbar">
-      <div className="nav-left">
+    <>
+      <div className="navbar">
         <h3 className="logo">LoanMate</h3>
 
-        <Link to="/dashboard" className="nav-link">
+        {/* Desktop Menu */}
+        <div className="desktop-menu">
+          <Link to="/dashboard" className="nav-link">
+            Dashboard
+          </Link>
+
+          <Link to="/add-person" className="nav-link">
+            Add Person
+          </Link>
+
+          {userEmail && <span className="email">{userEmail}</span>}
+
+          <button onClick={handleLogout} className="logout-btn">
+            Logout
+          </button>
+        </div>
+
+        {/* Hamburger */}
+        <div
+          className="hamburger"
+          onClick={() => setMenuOpen(true)}
+        >
+          ☰
+        </div>
+      </div>
+
+      {/* Sidebar */}
+      <div className={`sidebar ${menuOpen ? "open" : ""}`}>
+        <div className="close-btn" onClick={() => setMenuOpen(false)}>
+          ✕
+        </div>
+
+        <Link to="/dashboard" onClick={() => setMenuOpen(false)}>
           Dashboard
         </Link>
 
-        <Link to="/add-person" className="nav-link">
+        <Link to="/add-person" onClick={() => setMenuOpen(false)}>
           Add Person
         </Link>
-      </div>
 
-      <div className="nav-right">
         {userEmail && <span className="email">{userEmail}</span>}
 
-        <button onClick={handleLogout} className="logout-btn">
+        <button onClick={handleLogout}>
           Logout
         </button>
       </div>
-    </div>
+
+      {menuOpen && (
+        <div
+          className="overlay"
+          onClick={() => setMenuOpen(false)}
+        />
+      )}
+    </>
   );
 }
 
