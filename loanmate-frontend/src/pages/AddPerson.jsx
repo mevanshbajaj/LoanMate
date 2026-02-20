@@ -1,14 +1,24 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./AddPerson.css";
 
 function AddPerson() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async () => {
     if (!name || !phone) {
       alert("Name and phone are required");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Session expired. Please login again.");
+      navigate("/");
       return;
     }
 
@@ -17,7 +27,7 @@ function AddPerson() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ name, phone, address }),
       });
@@ -29,13 +39,19 @@ function AddPerson() {
         return;
       }
 
-      alert("Person added successfully");
+      alert("Person added successfully ✅");
 
+      // Clear form
       setName("");
       setPhone("");
       setAddress("");
+
+      // Redirect to dashboard
+      navigate("/dashboard");
+
     } catch (err) {
-      alert("Server error");
+      console.error(err);
+      alert("Server not reachable");
     }
   };
 

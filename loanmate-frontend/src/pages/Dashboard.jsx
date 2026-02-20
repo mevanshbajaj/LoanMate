@@ -4,12 +4,19 @@ import { useNavigate } from "react-router-dom";
 
 function Dashboard() {
   const [persons, setPersons] = useState([]);
+  const [summary, setSummary] = useState({
+    totalGiven: 0,
+    totalPaid: 0,
+    totalPending: 0,
+    activeLoans: 0,
+  });
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchPersons();
+    fetchSummary();
   }, []);
 
   const fetchPersons = async () => {
@@ -21,14 +28,31 @@ function Dashboard() {
       });
 
       const data = await res.json();
-
       if (res.ok) {
         setPersons(Array.isArray(data) ? data : []);
-      } else {
-        alert(data.message || "Failed to fetch persons");
       }
     } catch (err) {
       alert("Server error while fetching persons");
+    }
+  };
+
+  const fetchSummary = async () => {
+    try {
+      const res = await fetch(
+        "http://localhost:5000/api/loans/summary/all",
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      const data = await res.json();
+      if (res.ok) {
+        setSummary(data);
+      }
+    } catch (err) {
+      alert("Error fetching summary");
     } finally {
       setLoading(false);
     }
@@ -53,11 +77,36 @@ function Dashboard() {
         />
       </div>
 
+      {/* 🔥 SUMMARY CARDS */}
+      <div className="summary-grid">
+        <div className="summary-card blue">
+          <h4>Total Given</h4>
+          <p>₹ {summary.totalGiven}</p>
+        </div>
+
+        <div className="summary-card green">
+          <h4>Total Paid</h4>
+          <p>₹ {summary.totalPaid}</p>
+        </div>
+
+        <div className="summary-card red">
+          <h4>Total Pending</h4>
+          <p>₹ {summary.totalPending}</p>
+        </div>
+
+        <div className="summary-card purple">
+          <h4>Active Loans</h4>
+          <p>{summary.activeLoans}</p>
+        </div>
+      </div>
+
+      {/* Persons Count */}
       <div className="stat-card">
         <h4>Total Persons</h4>
         <p>{persons.length}</p>
       </div>
 
+      {/* Person List */}
       <div className="person-list">
         {loading ? (
           <p>Loading...</p>
@@ -69,7 +118,6 @@ function Dashboard() {
               key={person._id}
               className="person-card"
               onClick={() => navigate(`/person/${person._id}`)}
-              style={{ cursor: "pointer" }}
             >
               <div className="avatar">
                 {person.name.charAt(0).toUpperCase()}

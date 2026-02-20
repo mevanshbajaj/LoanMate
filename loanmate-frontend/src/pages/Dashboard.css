@@ -1,18 +1,20 @@
 /* ================= MODERN DASHBOARD ================= */
 
 .dashboard {
-  max-width: 1000px;
+  max-width: 1050px;
   margin: 30px auto;
   padding: 20px;
 }
 
-/* Header */
+/* ================= HEADER ================= */
+
 .dashboard-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 20px;
   flex-wrap: wrap;
+  margin-bottom: 10px;
 }
 
 .dashboard-header h1 {
@@ -28,20 +30,72 @@
   border: 1px solid #ccc;
   outline: none;
   transition: 0.2s ease;
+  background: #fff;
 }
 
 .dashboard-header input:focus {
   border-color: #4a6cf7;
-  box-shadow: 0 0 0 3px rgba(74,108,247,0.1);
+  box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.1);
 }
 
-/* Stat Card */
-.stat-card {
+/* ================= SUMMARY GRID ================= */
+
+.summary-grid {
   margin-top: 25px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.summary-card {
+  padding: 22px;
+  border-radius: 16px;
+  color: white;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  transition: 0.25s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-4px);
+}
+
+.summary-card h4 {
+  font-size: 14px;
+  opacity: 0.9;
+  margin-bottom: 8px;
+}
+
+.summary-card p {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+/* Summary Colors */
+
+.blue {
+  background: linear-gradient(135deg, #4a6cf7, #6c63ff);
+}
+
+.green {
+  background: linear-gradient(135deg, #00c853, #64dd17);
+}
+
+.red {
+  background: linear-gradient(135deg, #ff5252, #ff1744);
+}
+
+.purple {
+  background: linear-gradient(135deg, #8e24aa, #ab47bc);
+}
+
+/* ================= TOTAL PERSONS CARD ================= */
+
+.stat-card {
+  margin-top: 30px;
   background: #ffffff;
   padding: 25px;
   border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
 }
 
 .stat-card h4 {
@@ -56,7 +110,8 @@
   color: #4a6cf7;
 }
 
-/* Person List */
+/* ================= PERSON LIST ================= */
+
 .person-list {
   margin-top: 30px;
   display: flex;
@@ -64,7 +119,8 @@
   gap: 18px;
 }
 
-/* Person Card */
+/* ================= PERSON CARD ================= */
+
 .person-card {
   display: flex;
   align-items: center;
@@ -72,17 +128,18 @@
   padding: 18px;
   background: #ffffff;
   border-radius: 16px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.04);
-  transition: all 0.2s ease;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+  transition: all 0.25s ease;
   cursor: pointer;
 }
 
 .person-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  transform: translateY(-4px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.08);
 }
 
-/* Avatar */
+/* ================= AVATAR ================= */
+
 .avatar {
   width: 50px;
   height: 50px;
@@ -94,12 +151,16 @@
   justify-content: center;
   font-size: 18px;
   font-weight: bold;
+  flex-shrink: 0;
 }
+
+/* ================= PERSON TEXT ================= */
 
 .person-card h3 {
   margin-bottom: 4px;
   font-size: 16px;
   font-weight: 600;
+  color: #222;
 }
 
 .person-card p {
@@ -107,7 +168,14 @@
   color: #666;
 }
 
-/* Responsive */
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+  .summary-grid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+}
+
 @media (max-width: 600px) {
   .dashboard {
     padding: 15px;
@@ -120,5 +188,9 @@
 
   .dashboard-header input {
     width: 100%;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
   }
 }
