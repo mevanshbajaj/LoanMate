@@ -22,6 +22,13 @@ const loanSchema = new mongoose.Schema(
       required: true,
     },
 
+    // 🔥 IMPORTANT — ADD THIS
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+
     amount: {
       type: Number,
       required: true,
@@ -73,7 +80,6 @@ const loanSchema = new mongoose.Schema(
       default: "ACTIVE",
     },
 
-    // ✅ PAYMENT HISTORY
     payments: [paymentSchema],
   },
   { timestamps: true }

@@ -1,12 +1,13 @@
 const express = require("express");
 const Loan = require("../models/Loan");
+const authMiddleware = require("../middleware/auth");
 
 const router = express.Router();
 
 /* =====================================
    CREATE LOAN
 ===================================== */
-router.post("/", async (req, res) => {
+router.post("/", authMiddleware, async (req, res) => {
   try {
     const { personId, amount, interestRate, startDate, endDate } = req.body;
 
@@ -32,7 +33,7 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ message: "Invalid loan duration" });
     }
 
-    // SIMPLE INTEREST (yearly)
+    // SIMPLE INTEREST
     const totalInterest =
       (principal * rate * durationMonths) / (12 * 100);
 
@@ -40,6 +41,7 @@ router.post("/", async (req, res) => {
 
     const loan = await Loan.create({
       personId,
+      userId: req.userId,
       amount: principal,
       interestRate: rate,
       startDate,
@@ -61,10 +63,11 @@ router.post("/", async (req, res) => {
 /* =====================================
    GET LOANS FOR A PERSON
 ===================================== */
-router.get("/person/:personId", async (req, res) => {
+router.get("/person/:personId", authMiddleware, async (req, res) => {
   try {
     const loans = await Loan.find({
       personId: req.params.personId,
+      userId: req.userId,
     }).sort({ createdAt: -1 });
 
     res.json(loans);
@@ -74,10 +77,9 @@ router.get("/person/:personId", async (req, res) => {
 });
 
 /* =====================================
-   PAY AMOUNT (PARTIAL / EMI)
+   PAY AMOUNT (FIXED OVERPAY ISSUE)
 ===================================== */
-// PAY AMOUNT + STORE PAYMENT HISTORY
-router.put("/:loanId/pay", async (req, res) => {
+router.put("/:loanId/pay", authMiddleware, async (req, res) => {
   try {
     const payAmount = Number(req.body.amount);
 
@@ -85,7 +87,11 @@ router.put("/:loanId/pay", async (req, res) => {
       return res.status(400).json({ message: "Invalid payment amount" });
     }
 
-    const loan = await Loan.findById(req.params.loanId);
+    const loan = await Loan.findOne({
+      _id: req.params.loanId,
+      userId: req.userId,
+    });
+
     if (!loan) {
       return res.status(404).json({ message: "Loan not found" });
     }
@@ -94,22 +100,30 @@ router.put("/:loanId/pay", async (req, res) => {
       return res.status(400).json({ message: "Loan already closed" });
     }
 
-    // 🔥 Update totals
-    loan.amountPaid += payAmount;
-    loan.amountPending = loan.totalPayable - loan.amountPaid;
+    // 🔥 PREVENT OVERPAYMENT
+    if (payAmount > loan.amountPending) {
+      return res.status(400).json({
+        message: `Payment exceeds pending amount (₹${loan.amountPending})`,
+      });
+    }
 
-    // 🔥 ADD PAYMENT HISTORY
+    // Safe update
+    loan.amountPaid += payAmount;
+    loan.amountPending -= payAmount;
+
+    // Store payment history
     loan.payments.push({
       amount: payAmount,
       paidOn: new Date(),
     });
 
-    if (loan.amountPending <= 0) {
-      loan.amountPending = 0;
+    // Auto close when fully paid
+    if (loan.amountPending === 0) {
       loan.status = "CLOSED";
     }
 
     await loan.save();
+
     res.json(loan);
   } catch (err) {
     console.error("Pay loan error:", err);
@@ -117,9 +131,8 @@ router.put("/:loanId/pay", async (req, res) => {
   }
 });
 
-
 /* =====================================
-   DEV FIX: BACKFILL PENDING (OPTIONAL)
+   FIX PENDING (OPTIONAL)
 ===================================== */
 router.put("/fix-pending", async (req, res) => {
   try {
@@ -128,14 +141,41 @@ router.put("/fix-pending", async (req, res) => {
     for (let loan of loans) {
       loan.amountPaid = loan.amountPaid || 0;
       loan.amountPending = loan.totalPayable - loan.amountPaid;
+
       if (loan.amountPending <= 0) {
         loan.amountPending = 0;
         loan.status = "CLOSED";
       }
+
       await loan.save();
     }
 
     res.json({ message: "Loans fixed", count: loans.length });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+/* =====================================
+   DASHBOARD SUMMARY
+===================================== */
+router.get("/summary/all", authMiddleware, async (req, res) => {
+  try {
+    const loans = await Loan.find({ userId: req.userId });
+
+    const totalGiven = loans.reduce((sum, l) => sum + l.amount, 0);
+    const totalPaid = loans.reduce((sum, l) => sum + l.amountPaid, 0);
+    const totalPending = loans.reduce((sum, l) => sum + l.amountPending, 0);
+    const activeLoans = loans.filter(
+      (l) => l.status === "ACTIVE"
+    ).length;
+
+    res.json({
+      totalGiven,
+      totalPaid,
+      totalPending,
+      activeLoans,
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
