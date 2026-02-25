@@ -14,6 +14,7 @@ app.use(express.json());
 app.use("/api/auth", require("./routes/Authroutes"));
 app.use("/api/persons", require("./routes/Personroutes"));
 app.use("/api/loans", require("./routes/Loanroutes"));
+app.use("/api/auth", require("./routes/Authroutes"));
 
 app.get("/", (req, res) => {
   res.send("LoanMate Backend is running 🚀");

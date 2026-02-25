@@ -1,12 +1,13 @@
 const express = require("express");
 const Loan = require("../models/Loan");
 const authMiddleware = require("../middleware/auth");
+const bcrypt = require("bcryptjs");
+const Otp = require("../models/otp");
+const User = require("../models/User");
+const { generateOtp } = require("../utils/otp");
+const { sendEmail } = require("../utils/sendemails");
 
 const router = express.Router();
-
-/* =====================================
-   CREATE LOAN
-===================================== */
 router.post("/", authMiddleware, async (req, res) => {
   try {
     const { personId, amount, interestRate, startDate, endDate } = req.body;
@@ -117,7 +118,6 @@ router.put("/:loanId/pay", authMiddleware, async (req, res) => {
       paidOn: new Date(),
     });
 
-    // Auto close when fully paid
     if (loan.amountPending === 0) {
       loan.status = "CLOSED";
     }
@@ -130,10 +130,32 @@ router.put("/:loanId/pay", authMiddleware, async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+router.post("/send-delete-otp/:loanId", authMiddleware, async (req, res) => {
+  try {
+    const otp = generateOtp();
+    const hashedOtp = await bcrypt.hash(otp, 10);
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
 
-/* =====================================
-   FIX PENDING (OPTIONAL)
-===================================== */
+    await Otp.create({
+      userId: req.user.userId,
+      otp: hashedOtp,
+      expiresAt
+    });
+
+    const user = await User.findById(req.user.userId);
+
+    await sendEmail(
+      user.email,
+      "LoanMate Delete Loan OTP",
+      `Your OTP to delete loan is ${otp}`
+    );
+
+    res.json({ message: "Delete OTP sent" });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 router.put("/fix-pending", async (req, res) => {
   try {
     const loans = await Loan.find({ amountPending: { $exists: false } });

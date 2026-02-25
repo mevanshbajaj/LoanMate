@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const Otp = require("../models/otp");
 const { generateOtp } = require("../utils/otp");
-const { sendEmail } = require("../utils/sendemails");
+const { sendEmail } = require("../utils/sendEmail");
 
 const router = express.Router();
 
@@ -100,7 +100,9 @@ router.post("/verify-otp", async (req, res) => {
     await Otp.deleteMany({ userId });
 
     const token = jwt.sign(
-      { userId },
+      {
+        userId: userId
+      },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
