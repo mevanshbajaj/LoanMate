@@ -8,22 +8,24 @@ import Dashboard from "./pages/Dashboard";
 import AddPerson from "./pages/AddPerson";
 import PersonDetail from "./pages/PersonDetail";
 import AddLoan from "./pages/AddLoan";
+import OtpPage from "./pages/OtpPage";
 
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem("token");
   return token ? children : <Navigate to="/" />;
 };
 
-
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+
         {/* PUBLIC ROUTES */}
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/verify-otp" element={<OtpPage />} />
 
-        {/* PROTECTED ROUTES WITH NAVBAR */}
+        {/* PROTECTED ROUTES */}
         <Route
           element={
             <PrivateRoute>
@@ -36,6 +38,7 @@ function App() {
           <Route path="/person/:id" element={<PersonDetail />} />
           <Route path="/person/:id/add-loan" element={<AddLoan />} />
         </Route>
+
       </Routes>
     </BrowserRouter>
   );

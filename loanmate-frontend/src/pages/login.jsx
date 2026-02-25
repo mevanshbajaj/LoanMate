@@ -24,11 +24,12 @@ function Login() {
         return;
       }
 
-      // 🔐 SAVE TOKEN
-      localStorage.setItem("token", data.token);
+      // 🔐 SAVE userId TEMPORARILY
+      localStorage.setItem("userId", data.userId);
 
-      // ✅ REDIRECT
-      navigate("/dashboard");
+      // ✅ Redirect to OTP page
+      navigate("/verify-otp");
+
     } catch (err) {
       alert("Backend not reachable");
     }
