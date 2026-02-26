@@ -12,25 +12,23 @@ const allowedOrigins = [
   "http://localhost:3000",
   "https://loanmate-neon.vercel.app"
 ];
-
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
+    origin: [
+      "http://localhost:3000",
+      "https://loanmate-neon.vercel.app"
+    ],
+    credentials: true
   })
 );
+
+app.options("*", cors());
 app.use(express.json());
 
 app.use("/api/auth", require("./routes/Authroutes"));
 app.use("/api/persons", require("./routes/Personroutes"));
 app.use("/api/loans", require("./routes/Loanroutes"));
-app.use("/api/auth", require("./routes/Authroutes"));
+
 
 app.get("/", (req, res) => {
   res.send("LoanMate Backend is running 🚀");
