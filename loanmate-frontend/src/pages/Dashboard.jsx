@@ -1,6 +1,7 @@
 import "./Dashboard.css";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API } from "../config";
 
 function Dashboard() {
   const [persons, setPersons] = useState([]);
@@ -21,7 +22,7 @@ function Dashboard() {
 
   const fetchPersons = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/persons", {
+      const res = await fetch(`${API}/api/persons`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -39,7 +40,7 @@ function Dashboard() {
   const fetchSummary = async () => {
     try {
       const res = await fetch(
-        "http://localhost:5000/api/loans/summary/all",
+        `${API}/api/loans/summary/all`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,

@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import "./PersonDetail.css";
+import { API } from "../config";
 
 function PersonDetail() {
   const { id } = useParams();
@@ -34,7 +35,7 @@ function PersonDetail() {
   // FETCH LOANS ON PAGE LOAD
   // =========================
   useEffect(() => {
-    fetch(`http://localhost:5000/api/loans/person/${id}`, {
+    fetch(`{API}/api/loans/person/${id}`, {
   headers: {
     Authorization: `Bearer ${localStorage.getItem("token")}`,
   },
@@ -54,7 +55,7 @@ function PersonDetail() {
       return;
     }
 
-    const res = await fetch("http://localhost:5000/api/loans", {
+    const res = await fetch(`${API}/api/loans`, {
       method: "POST",
       headers: {
   "Content-Type": "application/json",
@@ -95,7 +96,7 @@ function PersonDetail() {
     }
 
     const res = await fetch(
-      `http://localhost:5000/api/loans/${loanId}/pay`,
+      `${API}/api/loans/${loanId}/pay`,
       {
         method: "PUT",
         headers: {

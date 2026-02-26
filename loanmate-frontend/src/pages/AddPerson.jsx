@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API } from "../config";
 import "./AddPerson.css";
 
 function AddPerson() {
@@ -23,7 +24,7 @@ function AddPerson() {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/persons", {
+      const res = await fetch(`${API}/api/persons`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

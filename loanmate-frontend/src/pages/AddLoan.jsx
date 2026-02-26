@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { API } from "../config";
 import "./AddLoan.css";
 
 function AddLoan() {
@@ -24,7 +25,7 @@ function AddLoan() {
     try {
       setLoading(true);
 
-      const res = await fetch("http://localhost:5000/api/loans", {
+      const res = await fetch(`${API}/api/loans`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
