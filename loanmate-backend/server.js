@@ -8,27 +8,22 @@ connectDB();
 
 const app = express();
 
-const allowedOrigins = [
-  "http://localhost:3000",
-  "https://loanmate-neon.vercel.app"
-];
 app.use(
   cors({
     origin: [
       "http://localhost:3000",
       "https://loanmate-neon.vercel.app"
     ],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true
   })
 );
 
-app.options("*", cors());
 app.use(express.json());
 
 app.use("/api/auth", require("./routes/Authroutes"));
 app.use("/api/persons", require("./routes/Personroutes"));
 app.use("/api/loans", require("./routes/Loanroutes"));
-
 
 app.get("/", (req, res) => {
   res.send("LoanMate Backend is running 🚀");
