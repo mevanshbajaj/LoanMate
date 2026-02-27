@@ -11,6 +11,7 @@ const router = express.Router();
 /* =========================
    SIGNUP
 ========================= */
+
 router.post("/signup", async (req, res) => {
   try {
     let { email, password } = req.body;
@@ -71,11 +72,18 @@ router.post("/login", async (req, res) => {
       isUsed: false
     });
 
-    await sendEmail(
-      user.email,
-      "LoanMate OTP Verification",
-      `Your OTP is ${otp}. It expires in 5 minutes.`
-    );
+    // await sendEmail(
+    //   user.email,
+    //   "LoanMate OTP Verification",
+    //   `Your OTP is ${otp}. It expires in 5 minutes.`
+    // );
+    // await sendEmail(
+//   user.email,
+//   "LoanMate OTP Verification",
+//   `Your OTP is ${otp}. It expires in 5 minutes.`
+// );
+
+console.log("OTP:", otp);
 
     res.json({
       message: "OTP sent successfully",
