@@ -1,12 +1,11 @@
-/* Page center */
 .page {
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   background: #f5f7fb;
+  position: relative;   /* 🔥 important */
 }
-
 /* Card */
 .card {
   background: #ffffff;
@@ -49,4 +48,18 @@
 
 .card button:hover {
   background-color: #3a5be0;
+}
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.copyright {
+  position: absolute;
+  bottom: 15px;
+  font-size: 14px;
+  color: #666;
 }

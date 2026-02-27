@@ -2,39 +2,41 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { API } from "../config";
 import "./Auth.css";
+
 console.log("API URL:", API);
+
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = async () => {
-  try {
-    const res = await fetch(`${API}/api/auth/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const res = await fetch(`${API}/api/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!res.ok) {
-      alert(data.message || "Login failed");
-      return;
+      if (!res.ok) {
+        alert(data.message || "Login failed");
+        return;
+      }
+
+      // Save JWT token
+      localStorage.setItem("token", data.token);
+
+      // Redirect to dashboard
+      navigate("/dashboard");
+
+    } catch (err) {
+      alert("Backend not reachable");
     }
-
-    // ✅ Save JWT token
-    localStorage.setItem("token", data.token);
-
-    // ✅ Redirect to dashboard
-    navigate("/dashboard");
-
-  } catch (err) {
-    alert("Backend not reachable");
-  }
-};
+  };
 
   return (
     <div className="page">
@@ -64,6 +66,11 @@ function Login() {
           </Link>
         </p>
       </div>
+
+      {/* ✅ Copyright */}
+      <p className="copyright">
+        © {new Date().getFullYear()} Vansh Bajaj All rights reserved.
+      </p>
     </div>
   );
 }
