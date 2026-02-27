@@ -9,32 +9,32 @@ function Login() {
   const navigate = useNavigate();
 
   const handleLogin = async () => {
-    try {
-      const res = await fetch(`${API}/api/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+  try {
+    const res = await fetch(`${API}/api/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (!res.ok) {
-        alert(data.message || "Login failed");
-        return;
-      }
-
-      // 🔐 SAVE userId TEMPORARILY
-      localStorage.setItem("userId", data.userId);
-
-      // ✅ Redirect to OTP page
-      navigate("/verify-otp");
-
-    } catch (err) {
-      alert("Backend not reachable");
+    if (!res.ok) {
+      alert(data.message || "Login failed");
+      return;
     }
-  };
+
+    // ✅ Save JWT token
+    localStorage.setItem("token", data.token);
+
+    // ✅ Redirect to dashboard
+    navigate("/dashboard");
+
+  } catch (err) {
+    alert("Backend not reachable");
+  }
+};
 
   return (
     <div className="page">

@@ -8,7 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import AddPerson from "./pages/AddPerson";
 import PersonDetail from "./pages/PersonDetail";
 import AddLoan from "./pages/AddLoan";
-import OtpPage from "./pages/OtpPage";
+// import OtpPage from "./pages/OtpPage";
 
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem("token");
