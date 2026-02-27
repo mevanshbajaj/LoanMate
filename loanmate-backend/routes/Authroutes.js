@@ -8,13 +8,19 @@ const { sendEmail } = require("../utils/sendemails");
 
 const router = express.Router();
 
+/* =========================
+   SIGNUP
+========================= */
 router.post("/signup", async (req, res) => {
   try {
-    const { email, password } = req.body;
+    let { email, password } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ message: "All fields required" });
     }
+
+    // Normalize email
+    email = email.trim().toLowerCase();
 
     const exists = await User.findOne({ email });
     if (exists) {
@@ -26,21 +32,34 @@ router.post("/signup", async (req, res) => {
     await User.create({ email, password: hashedPassword });
 
     res.status(201).json({ message: "Signup successful" });
+
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
+/* =========================
+   LOGIN (SEND OTP)
+========================= */
 router.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
+    let { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "All fields required" });
+    }
+
+    // Normalize email
+    email = email.trim().toLowerCase();
 
     const user = await User.findOne({ email });
+
     if (!user) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
     const match = await bcrypt.compare(password, user.password);
+
     if (!match) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
@@ -52,7 +71,8 @@ router.post("/login", async (req, res) => {
     await Otp.create({
       userId: user._id,
       otp: hashedOtp,
-      expiresAt
+      expiresAt,
+      isUsed: false
     });
 
     await sendEmail(
@@ -71,6 +91,9 @@ router.post("/login", async (req, res) => {
   }
 });
 
+/* =========================
+   VERIFY OTP
+========================= */
 router.post("/verify-otp", async (req, res) => {
   try {
     const { userId, otp } = req.body;
