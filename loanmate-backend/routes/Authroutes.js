@@ -35,10 +35,10 @@ router.post("/signup", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
 /* =========================
    LOGIN (SEND OTP)
-========================= */
-router.post("/login", async (req, res) => {
+========================= */router.post("/login", async (req, res) => {
   try {
     let { email, password } = req.body;
 
@@ -46,17 +46,14 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ message: "All fields required" });
     }
 
-    // Normalize email
     email = email.trim().toLowerCase();
 
     const user = await User.findOne({ email });
-
     if (!user) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
     const match = await bcrypt.compare(password, user.password);
-
     if (!match) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
@@ -72,32 +69,25 @@ router.post("/login", async (req, res) => {
       isUsed: false
     });
 
- // Send response first
-res.json({
-  message: "OTP sent successfully",
-  userId: user._id
-});
-
-// Send email in background (non-blocking)
-sendEmail(
-  user.email,
-  "LoanMate OTP Verification",
-  `Your OTP is ${otp}. It expires in 5 minutes.`
-).catch(err => {
-  console.error("Email error:", err);
-});
-
-
+    // ✅ Send response only once
     res.json({
       message: "OTP sent successfully",
       userId: user._id
+    });
+
+    // ✅ Send email after response (non-blocking)
+    sendEmail(
+      user.email,
+      "LoanMate OTP Verification",
+      `Your OTP is ${otp}. It expires in 5 minutes.`
+    ).catch(err => {
+      console.error("Email error:", err);
     });
 
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
-
 /* =========================
    VERIFY OTP
 ========================= */
