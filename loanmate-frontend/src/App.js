@@ -23,7 +23,7 @@ function App() {
         {/* PUBLIC ROUTES */}
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/verify-otp" element={<OtpPage />} />
+        {/* <Route path="/verify-otp" element={<OtpPage />} /> */}
 
         {/* PROTECTED ROUTES */}
         <Route
