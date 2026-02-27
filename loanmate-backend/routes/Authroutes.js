@@ -19,7 +19,6 @@ router.post("/signup", async (req, res) => {
       return res.status(400).json({ message: "All fields required" });
     }
 
-    // Normalize email
     email = email.trim().toLowerCase();
 
     const exists = await User.findOne({ email });
@@ -27,9 +26,7 @@ router.post("/signup", async (req, res) => {
       return res.status(400).json({ message: "Email already exists" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    await User.create({ email, password: hashedPassword });
+    await User.create({ email, password }); // NO manual hashing
 
     res.status(201).json({ message: "Signup successful" });
 
@@ -37,7 +34,6 @@ router.post("/signup", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-
 /* =========================
    LOGIN (SEND OTP)
 ========================= */
