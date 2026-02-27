@@ -72,18 +72,21 @@ router.post("/login", async (req, res) => {
       isUsed: false
     });
 
-    // await sendEmail(
-    //   user.email,
-    //   "LoanMate OTP Verification",
-    //   `Your OTP is ${otp}. It expires in 5 minutes.`
-    // );
-    // await sendEmail(
-//   user.email,
-//   "LoanMate OTP Verification",
-//   `Your OTP is ${otp}. It expires in 5 minutes.`
-// );
+ // Send response first
+res.json({
+  message: "OTP sent successfully",
+  userId: user._id
+});
 
-console.log("OTP:", otp);
+// Send email in background (non-blocking)
+sendEmail(
+  user.email,
+  "LoanMate OTP Verification",
+  `Your OTP is ${otp}. It expires in 5 minutes.`
+).catch(err => {
+  console.error("Email error:", err);
+});
+
 
     res.json({
       message: "OTP sent successfully",
