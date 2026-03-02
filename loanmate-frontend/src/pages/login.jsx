@@ -3,8 +3,6 @@ import { useNavigate, Link } from "react-router-dom";
 import { API } from "../config";
 import "./Auth.css";
 
-console.log("API URL:", API);
-
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -12,7 +10,7 @@ function Login() {
 
   const handleLogin = async () => {
     try {
-      const res = await fetch(`${API}/api/auth/login`, {
+      const res = await fetch(`${API}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -27,13 +25,16 @@ function Login() {
         return;
       }
 
-      // Save JWT token
-      localStorage.setItem("token", data.token);
+      // ✅ Save JWT token safely
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        navigate("/dashboard");
+      } else {
+        alert("Token not received from server");
+      }
 
-      // Redirect to dashboard
-      navigate("/dashboard");
-
-    } catch (err) {
+    } catch (error) {
+      console.error("Login error:", error);
       alert("Backend not reachable");
     }
   };
@@ -67,9 +68,8 @@ function Login() {
         </p>
       </div>
 
-      {/* ✅ Copyright */}
       <p className="copyright">
-        © {new Date().getFullYear()} Vansh Bajaj All rights reserved.
+        © {new Date().getFullYear()} Vansh Bajaj. All rights reserved.
       </p>
     </div>
   );
