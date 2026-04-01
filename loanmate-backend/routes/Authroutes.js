@@ -2,16 +2,10 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
-const Otp = require("../models/otp");
-const { generateOtp } = require("../utils/otp");
-const { sendEmail } = require("../utils/sendemails");
 
 const router = express.Router();
 
-/* =========================
-   SIGNUP
-========================= */
-
+/* SIGNUP */
 router.post("/signup", async (req, res) => {
   try {
     let { email, password } = req.body;
@@ -24,21 +18,19 @@ router.post("/signup", async (req, res) => {
 
     const exists = await User.findOne({ email });
     if (exists) {
-      return res.status(400).json({ message: "Email already exists" });
+      return res.status(400).json({ message: "Email already registered" });
     }
 
-    await User.create({ email, password }); // NO manual hashing
+    await User.create({ email, password });
 
     res.status(201).json({ message: "Signup successful" });
-
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-/* =========================
-   LOGIN (SEND OTP)
-========================= */router.post("/login", async (req, res) => {
+/* LOGIN — returns token directly */
+router.post("/login", async (req, res) => {
   try {
     let { email, password } = req.body;
 
@@ -58,78 +50,14 @@ router.post("/signup", async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    const otp = generateOtp();
-    const hashedOtp = await bcrypt.hash(otp, 10);
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
-
-    await Otp.create({
-      userId: user._id,
-      otp: hashedOtp,
-      expiresAt,
-      isUsed: false
-    });
-
-    // ✅ Send response only once
-    res.json({
-      message: "OTP sent successfully",
-      userId: user._id
-    });
-
-    // ✅ Send email after response (non-blocking)
-    sendEmail(
-      user.email,
-      "LoanMate OTP Verification",
-      `Your OTP is ${otp}. It expires in 5 minutes.`
-    ).catch(err => {
-      console.error("Email error:", err);
-    });
-
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-/* =========================
-   VERIFY OTP
-========================= */
-router.post("/verify-otp", async (req, res) => {
-  try {
-    const { userId, otp } = req.body;
-
-    const otpRecord = await Otp.findOne({
-      userId,
-      isUsed: false
-    }).sort({ createdAt: -1 });
-
-    if (!otpRecord) {
-      return res.status(400).json({ message: "OTP not found" });
-    }
-
-    if (otpRecord.expiresAt < new Date()) {
-      return res.status(400).json({ message: "OTP expired" });
-    }
-
-    const isValid = await bcrypt.compare(otp, otpRecord.otp);
-
-    if (!isValid) {
-      return res.status(400).json({ message: "Invalid OTP" });
-    }
-
-    otpRecord.isUsed = true;
-    await otpRecord.save();
-
-    await Otp.deleteMany({ userId });
-
+    // ✅ FIXED: Return token immediately (OTP flow was broken/disabled)
     const token = jwt.sign(
-      { userId },
+      { userId: user._id },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
-    res.json({
-      message: "Login successful",
-      token
-    });
-
+    res.json({ message: "Login successful", token });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

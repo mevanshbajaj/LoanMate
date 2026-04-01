@@ -1,5 +1,5 @@
-const crypto = require("crypto");
-
-exports.generateOtp = () => {
-  return crypto.randomInt(100000, 999999).toString();
+const generateOtp = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
 };
+
+module.exports = { generateOtp };
