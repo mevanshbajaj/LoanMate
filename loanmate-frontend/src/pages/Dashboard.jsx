@@ -1,7 +1,39 @@
-import "./Dashboard.css";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { API } from "../config";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import toast from "react-hot-toast";
+import api from "../services/api";
+import "./Dashboard.css";
+
+function StatCard({ label, value, color, icon }) {
+  return (
+    <div className={`stat-card stat-${color}`}>
+      <div className="stat-icon-wrap">{icon}</div>
+      <div className="stat-body">
+        <p className="stat-label">{label}</p>
+        <p className="stat-value">{value}</p>
+      </div>
+    </div>
+  );
+}
+
+function PersonSkeleton() {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="skeleton" style={{ height: 68, borderRadius: 8 }} />
+      ))}
+    </div>
+  );
+}
 
 function Dashboard() {
   const [persons, setPersons] = useState([]);
@@ -11,53 +43,31 @@ function Dashboard() {
     totalPending: 0,
     activeLoans: 0,
   });
+  const [chartData, setChartData] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchPersons();
-    fetchSummary();
-  }, []);
-
-  const fetchPersons = async () => {
+  const fetchAll = useCallback(async () => {
     try {
-      const res = await fetch(`${API}/api/persons`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      const data = await res.json();
-      if (res.ok) {
-        setPersons(Array.isArray(data) ? data : []);
-      }
-    } catch (err) {
-      alert("Server error while fetching persons");
-    }
-  };
-
-  const fetchSummary = async () => {
-    try {
-      const res = await fetch(
-        `${API}/api/loans/summary/all`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-
-      const data = await res.json();
-      if (res.ok) {
-        setSummary(data);
-      }
-    } catch (err) {
-      alert("Error fetching summary");
+      const [personsRes, summaryRes, chartRes] = await Promise.all([
+        api.get("/persons"),
+        api.get("/loans/summary/all"),
+        api.get("/loans/monthly-stats"),
+      ]);
+      setPersons(personsRes.data);
+      setSummary(summaryRes.data);
+      setChartData(chartRes.data);
+    } catch {
+      toast.error("Failed to load dashboard data");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchAll();
+  }, [fetchAll]);
 
   const filtered = persons.filter(
     (p) =>
@@ -65,71 +75,127 @@ function Dashboard() {
       p.phone.includes(search)
   );
 
+  const fmt = (n) => `₹${Number(n).toLocaleString("en-IN")}`;
+
   return (
     <div className="dashboard">
-      <div className="dashboard-header">
-        <h1>Dashboard</h1>
-
-        <input
-          type="text"
-          placeholder="Search by name or phone"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      <div className="dash-header">
+        <div>
+          <h1 className="page-title">Dashboard</h1>
+          <p className="page-subtitle">Your lending overview</p>
+        </div>
+        <button className="btn-primary" onClick={() => navigate("/add-person")}>
+          + Add Person
+        </button>
       </div>
 
-      {/* 🔥 SUMMARY CARDS */}
-      <div className="summary-grid">
-        <div className="summary-card blue">
-          <h4>Total Given</h4>
-          <p>₹ {summary.totalGiven}</p>
-        </div>
-
-        <div className="summary-card green">
-          <h4>Total Paid</h4>
-          <p>₹ {summary.totalPaid}</p>
-        </div>
-
-        <div className="summary-card red">
-          <h4>Total Pending</h4>
-          <p>₹ {summary.totalPending}</p>
-        </div>
-
-        <div className="summary-card purple">
-          <h4>Active Loans</h4>
-          <p>{summary.activeLoans}</p>
-        </div>
+      <div className="stat-grid">
+        <StatCard label="Total Given" value={fmt(summary.totalGiven)} color="blue" icon="💰" />
+        <StatCard label="Total Paid" value={fmt(summary.totalPaid)} color="green" icon="✅" />
+        <StatCard label="Pending" value={fmt(summary.totalPending)} color="red" icon="⏳" />
+        <StatCard label="Active Loans" value={summary.activeLoans} color="purple" icon="📋" />
       </div>
 
-      {/* Persons Count */}
-      <div className="stat-card">
-        <h4>Total Persons</h4>
-        <p>{persons.length}</p>
-      </div>
+      {chartData.length > 0 && (
+        <div className="chart-card">
+          <p className="section-title" style={{ marginBottom: 20 }}>
+            Monthly Lending Activity
+          </p>
+          <ResponsiveContainer width="100%" height={240}>
+            <AreaChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="gradGiven" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.25} />
+                  <stop offset="95%" stopColor="#4F46E5" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="gradPaid" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#10B981" stopOpacity={0.25} />
+                  <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
+              <XAxis
+                dataKey="month"
+                tick={{ fontSize: 12, fill: "#64748B" }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                tick={{ fontSize: 12, fill: "#64748B" }}
+                axisLine={false}
+                tickLine={false}
+                tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
+              />
+              <Tooltip
+                formatter={(value, name) => [fmt(value), name]}
+                contentStyle={{ borderRadius: 8, border: "1px solid #E2E8F0", fontSize: 13 }}
+              />
+              <Area
+                type="monotone"
+                dataKey="given"
+                stroke="#4F46E5"
+                strokeWidth={2}
+                fill="url(#gradGiven)"
+                name="Given"
+              />
+              <Area
+                type="monotone"
+                dataKey="paid"
+                stroke="#10B981"
+                strokeWidth={2}
+                fill="url(#gradPaid)"
+                name="Paid"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      )}
 
-      {/* Person List */}
-      <div className="person-list">
+      <div className="people-card">
+        <div className="people-header">
+          <p className="section-title">
+            People {!loading && `(${persons.length})`}
+          </p>
+          <input
+            className="search-box"
+            type="text"
+            placeholder="Search name or phone..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+
         {loading ? (
-          <p>Loading...</p>
+          <PersonSkeleton />
         ) : filtered.length === 0 ? (
-          <p>No persons found</p>
+          <div className="empty-state">
+            <p className="empty-icon">👤</p>
+            <p>{search ? "No results found." : "No people added yet."}</p>
+            {!search && (
+              <button className="btn-primary" onClick={() => navigate("/add-person")}>
+                Add your first person
+              </button>
+            )}
+          </div>
         ) : (
-          filtered.map((person) => (
-            <div
-              key={person._id}
-              className="person-card"
-              onClick={() => navigate(`/person/${person._id}`)}
-            >
-              <div className="avatar">
-                {person.name.charAt(0).toUpperCase()}
+          <div className="person-list">
+            {filtered.map((person) => (
+              <div
+                key={person._id}
+                className="person-row"
+                onClick={() => navigate(`/person/${person._id}`)}
+              >
+                <div className="person-avatar">
+                  {person.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="person-meta">
+                  <span className="person-name">{person.name}</span>
+                  <span className="person-phone">{person.phone}</span>
+                </div>
+                <span className="row-arrow">→</span>
               </div>
-
-              <div>
-                <h3>{person.name}</h3>
-                <p>{person.phone}</p>
-              </div>
-            </div>
-          ))
+            ))}
+          </div>
         )}
       </div>
     </div>

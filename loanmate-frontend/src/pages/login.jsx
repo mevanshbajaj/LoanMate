@@ -1,76 +1,74 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { API } from "../config";
+import toast from "react-hot-toast";
+import api from "../services/api";
 import "./Auth.css";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    if (!email || !password) {
+      toast.error("Please enter email and password");
+      return;
+    }
+
+    setLoading(true);
     try {
-      const res = await fetch(`${API}/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
+      const res = await api.post("/auth/login", {
+        email: email.trim().toLowerCase(),
+        password,
       });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        alert(data.message || "Login failed");
-        return;
-      }
-
-      // ✅ Save JWT token safely
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-        navigate("/dashboard");
-      } else {
-        alert("Token not received from server");
-      }
-
-    } catch (error) {
-      console.error("Login error:", error);
-      alert("Backend not reachable");
+      localStorage.setItem("token", res.data.token);
+      navigate("/dashboard");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="page">
-      <div className="card">
-        <h2>Login</h2>
+    <div className="auth-page">
+      <div className="auth-card">
+        <div className="auth-logo">💰</div>
+        <h1 className="auth-title">LoanMate</h1>
+        <p className="auth-subtitle">Financer Lending Ledger</p>
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+        <form onSubmit={handleLogin} className="auth-form">
+          <div className="form-group">
+            <label>Email</label>
+            <input
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoFocus
+            />
+          </div>
+          <div className="form-group">
+            <label>Password</label>
+            <input
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+          <button type="submit" className="auth-btn" disabled={loading}>
+            {loading ? <span className="spinner" /> : "Login"}
+          </button>
+        </form>
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-
-        <button onClick={handleLogin}>Login</button>
-
-        <p style={{ marginTop: "12px" }}>
-          Don’t have an account?{" "}
-          <Link to="/signup" style={{ color: "#4a6cf7" }}>
-            Signup
-          </Link>
+        <p className="auth-footer">
+          Don't have an account? <Link to="/signup">Sign up</Link>
         </p>
       </div>
-
-      <p className="copyright">
-        © {new Date().getFullYear()} Vansh Bajaj. All rights reserved.
-      </p>
+      <p className="auth-copy">© {new Date().getFullYear()} Vansh Bajaj</p>
     </div>
   );
 }

@@ -1,92 +1,91 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { API } from "../config";
+import toast from "react-hot-toast";
+import api from "../services/api";
 import "./AddPerson.css";
 
 function AddPerson() {
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
+  const [form, setForm] = useState({ name: "", phone: "", address: "" });
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async () => {
-    if (!name || !phone) {
-      alert("Name and phone are required");
+  const set = (key) => (e) => setForm({ ...form, [key]: e.target.value });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.name.trim() || !form.phone.trim()) {
+      toast.error("Name and phone are required");
       return;
     }
 
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      alert("Session expired. Please login again.");
-      navigate("/");
-      return;
-    }
-
+    setLoading(true);
     try {
-      const res = await fetch(`${API}/api/persons`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ name, phone, address }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        alert(data.message || "Error adding person");
-        return;
-      }
-
-      alert("Person added successfully ✅");
-
-      // Clear form
-      setName("");
-      setPhone("");
-      setAddress("");
-
-      // Redirect to dashboard
+      await api.post("/persons", form);
+      toast.success("Person added successfully");
       navigate("/dashboard");
-
     } catch (err) {
-      console.error(err);
-      alert("Server not reachable");
+      toast.error(err.response?.data?.message || "Failed to add person");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="addperson-page">
-      <div className="addperson-card">
-        <h2>Add New Person</h2>
+    <div className="ap-page">
+      <div className="ap-card">
+        <div className="ap-header">
+          <button className="back-btn" onClick={() => navigate("/dashboard")}>
+            ← Back
+          </button>
+          <h1 className="page-title">Add New Person</h1>
+          <p className="page-subtitle">Add a borrower to your ledger</p>
+        </div>
 
-        <label>Name</label>
-        <input
-          type="text"
-          placeholder="Enter full name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+        <form onSubmit={handleSubmit} className="ap-form">
+          <div className="form-group">
+            <label>Full Name *</label>
+            <input
+              type="text"
+              placeholder="Enter full name"
+              value={form.name}
+              onChange={set("name")}
+              autoFocus
+            />
+          </div>
 
-        <label>Phone</label>
-        <input
-          type="text"
-          placeholder="Enter phone number"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-        />
+          <div className="form-group">
+            <label>Phone Number *</label>
+            <input
+              type="tel"
+              placeholder="e.g. 9876543210"
+              value={form.phone}
+              onChange={set("phone")}
+            />
+          </div>
 
-        <label>Address</label>
-        <textarea
-          placeholder="Enter address"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-        />
+          <div className="form-group">
+            <label>Address <span style={{ fontWeight: 400, color: "var(--text-muted)" }}>(optional)</span></label>
+            <textarea
+              placeholder="Enter address"
+              value={form.address}
+              onChange={set("address")}
+              rows={3}
+            />
+          </div>
 
-        <button onClick={handleSubmit}>
-          Save Person
-        </button>
+          <div className="ap-actions">
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() => navigate("/dashboard")}
+            >
+              Cancel
+            </button>
+            <button type="submit" className="btn-primary" disabled={loading}>
+              {loading ? <span className="spinner" /> : "Save Person"}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

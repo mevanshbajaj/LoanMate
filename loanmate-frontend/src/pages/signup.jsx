@@ -1,63 +1,75 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import toast from "react-hot-toast";
+import api from "../services/api";
 import "./Auth.css";
-import { API } from "../config";
 
 function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSignup = async () => {
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    if (!email || !password) {
+      toast.error("Please fill all fields");
+      return;
+    }
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
+    setLoading(true);
     try {
-      const res = await fetch(`${API}/api/auth/signup`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
+      await api.post("/auth/signup", {
+        email: email.trim().toLowerCase(),
+        password,
       });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        alert(data.message || "Signup failed");
-        return;
-      }
-
-      alert("Signup successful");
+      toast.success("Account created! Please login.");
       navigate("/");
     } catch (err) {
-      alert("Backend not reachable");
+      toast.error(err.response?.data?.message || "Signup failed");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="page">
-      <div className="card">
-        <h2>Signup</h2>
+    <div className="auth-page">
+      <div className="auth-card">
+        <div className="auth-logo">💰</div>
+        <h1 className="auth-title">Create Account</h1>
+        <p className="auth-subtitle">Join LoanMate today</p>
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+        <form onSubmit={handleSignup} className="auth-form">
+          <div className="form-group">
+            <label>Email</label>
+            <input
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoFocus
+            />
+          </div>
+          <div className="form-group">
+            <label>Password</label>
+            <input
+              type="password"
+              placeholder="Min 6 characters"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+          <button type="submit" className="auth-btn" disabled={loading}>
+            {loading ? <span className="spinner" /> : "Create Account"}
+          </button>
+        </form>
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-
-        <button onClick={handleSignup}>Signup</button>
-
-        <p style={{ marginTop: "12px" }}>
-          Already have an account?{" "}
-          <Link to="/" style={{ color: "#4a6cf7" }}>
-            Login
-          </Link>
+        <p className="auth-footer">
+          Already have an account? <Link to="/">Login</Link>
         </p>
       </div>
     </div>

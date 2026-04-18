@@ -1,116 +1,237 @@
-.person-detail {
-  padding: 24px;
-}
+.person-detail { max-width: 780px; }
 
-/* Header */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.header-left h1 {
-  margin: 0;
-}
-
-.sub-text {
-  font-size: 13px;
-  color: #666;
-}
-
-/* RIGHT SIDE BUTTON FIX */
-.header-right {
+/* Person card */
+.pd-person-card {
   display: flex;
   align-items: center;
+  gap: 16px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  margin-bottom: 16px;
 }
 
-/* REAL BUTTON STYLE */
-.add-loan-btn {
-  display: inline-flex;          /* 🔥 KEY */
+.pd-avatar {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  font-size: 22px;
+  font-weight: 700;
+  display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+}
 
-  background-color: #4a6cf7;
-  color: white;
-  border: none;
+.pd-info { flex: 1; }
+.pd-name { font-size: 20px; font-weight: 700; }
+.pd-phone { font-size: 14px; color: var(--text-secondary); margin-top: 2px; }
+.pd-address { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
 
-  padding: 8px 14px;             /* 🔥 SMALLER */
-  border-radius: 8px;
-
-  font-size: 14px;
+.pd-badge-wrap { align-self: flex-start; }
+.pd-badge {
+  background: var(--primary-light);
+  color: var(--primary);
+  font-size: 12px;
   font-weight: 600;
-
-  cursor: pointer;
-  white-space: nowrap;
+  padding: 4px 10px;
+  border-radius: 20px;
 }
 
-/* Cards */
-.card {
-  background: white;
+/* Summary */
+.pd-summary {
+  display: flex;
+  align-items: center;
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 18px 24px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  margin-bottom: 16px;
+  gap: 0;
+}
+
+.pd-stat { flex: 1; text-align: center; }
+.pd-stat-label { font-size: 12px; color: var(--text-secondary); font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px; display: block; margin-bottom: 4px; }
+.pd-stat-val { font-size: 19px; font-weight: 700; }
+.pd-stat-val.blue   { color: var(--primary); }
+.pd-stat-val.green  { color: var(--success); }
+.pd-stat-val.red    { color: var(--danger); }
+.pd-divider { width: 1px; height: 36px; background: var(--border); flex-shrink: 0; }
+
+/* Loans card */
+.pd-loans-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+.pd-loans-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+/* Add loan panel */
+.add-loan-panel {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
   padding: 20px;
-  border-radius: 14px;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
   margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
-.info-grid {
+.form-row-2 {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
 }
 
-.loan-item {
+/* Loan cards */
+.loan-list { display: flex; flex-direction: column; gap: 12px; }
+
+.loan-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 18px;
+  transition: box-shadow 0.15s;
+}
+.loan-card:hover { box-shadow: var(--shadow-md); }
+.loan-closed { opacity: 0.65; }
+
+.loan-top {
   display: flex;
   justify-content: space-between;
-  padding: 14px 0;
-  border-bottom: 1px solid #eee;
+  align-items: flex-start;
+  margin-bottom: 14px;
 }
 
-.loan-item:last-child {
-  border-bottom: none;
+.loan-amount { font-size: 20px; font-weight: 700; }
+.loan-meta { font-size: 13px; color: var(--text-secondary); margin-top: 3px; }
+.loan-right { text-align: right; }
+
+.loan-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.badge-active { background: var(--primary-light); color: var(--primary); }
+.badge-closed { background: var(--success-light); color: var(--success); }
+.loan-total { font-size: 13px; color: var(--text-secondary); }
+
+/* Progress */
+.progress-bar {
+  height: 6px;
+  background: #E2E8F0;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--success);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+  min-width: 2px;
 }
 
-.loan-note {
+.progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+.lbl-paid    { color: var(--success); }
+.lbl-pending { color: var(--danger); }
+
+/* Payment history */
+.pay-history {
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+  margin-bottom: 12px;
+}
+.pay-history-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 8px;
+}
+.pay-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 13px;
-  color: #666;
+  padding: 3px 0;
 }
+.pay-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--success);
+  flex-shrink: 0;
+}
+.pay-amt { font-weight: 600; }
+.pay-date { color: var(--text-muted); margin-left: auto; font-size: 12px; }
 
-.loan-interest {
-  font-weight: 600;
-  color: #4a6cf7;
-}
-.person-container {
-  padding: 20px;
-  max-width: 500px;
-  margin: auto;
-}
+/* Pay action */
+.pay-action { border-top: 1px solid var(--border); padding-top: 12px; }
 
-.loan-form {
-  border: 1px solid #ccc;
-  padding: 15px;
-  margin-bottom: 20px;
-}
-
-.loan-form input {
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 10px;
-}
-
-.loan-form button {
-  padding: 8px 12px;
-}
-
-.loan-list {
-  border: 1px solid #ccc;
-  padding: 15px;
-}
-
-.loan-item {
+.pay-form-inline {
   display: flex;
-  justify-content: space-between;
-  padding: 8px;
-  border-bottom: 1px solid #eee;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
 }
+.pay-form-inline input {
+  flex: 1;
+  min-width: 120px;
+  padding: 9px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  outline: none;
+}
+.pay-form-inline input:focus { border-color: var(--primary); }
 
+.btn-record-pay {
+  background: none;
+  border: 1.5px solid var(--success);
+  color: var(--success);
+  border-radius: var(--radius-sm);
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-record-pay:hover { background: var(--success); color: white; }
+
+/* Responsive */
+@media (max-width: 600px) {
+  .pd-summary { flex-direction: column; gap: 14px; }
+  .pd-divider { width: 60px; height: 1px; }
+  .form-row-2 { grid-template-columns: 1fr; }
+  .loan-top { flex-direction: column; gap: 8px; }
+  .loan-right { text-align: left; }
+  .pay-form-inline { flex-direction: column; align-items: stretch; }
+  .pd-person-card { flex-wrap: wrap; }
+  .pd-badge-wrap { width: 100%; }
+}

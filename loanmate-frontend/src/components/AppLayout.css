@@ -1,0 +1,73 @@
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar-desktop {
+  width: var(--sidebar-width);
+  flex-shrink: 0;
+}
+
+.main-content {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  min-height: 100vh;
+  padding: 32px 36px;
+  max-width: calc(100vw - var(--sidebar-width));
+}
+
+.mobile-topbar {
+  display: none;
+}
+
+.sidebar-mobile {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 200;
+}
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 150;
+  backdrop-filter: blur(2px);
+}
+
+.hamburger-btn {
+  background: none;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 11px;
+  font-size: 17px;
+  cursor: pointer;
+  color: var(--text);
+  transition: background 0.15s;
+}
+.hamburger-btn:hover { background: var(--border); }
+
+.mobile-brand {
+  font-weight: 800;
+  color: var(--primary);
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  .sidebar-desktop { display: none; }
+
+  .main-content {
+    margin-left: 0;
+    padding: 16px;
+    max-width: 100vw;
+  }
+
+  .mobile-topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+}

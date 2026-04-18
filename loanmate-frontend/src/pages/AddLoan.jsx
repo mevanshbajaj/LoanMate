@@ -8,8 +8,9 @@ function AddLoan() {
   const navigate = useNavigate();
 
   const [amount, setAmount] = useState("");
-  const [interest, setInterest] = useState("");
-  const [note, setNote] = useState("");
+  const [interestRate, setInterestRate] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -17,28 +18,39 @@ function AddLoan() {
     e.preventDefault();
     setError("");
 
-    if (!amount || !interest) {
-      setError("Loan amount and interest are required");
+    if (!amount || !interestRate || !startDate || !endDate) {
+      setError("All fields are required");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/");
       return;
     }
 
     try {
       setLoading(true);
 
-      const res = await fetch(`${API}/api/loans`, {
+      const res = await fetch(`${API}/loans`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
           personId: id,
-          amount,
-          interest,
-          note
-        })
+          amount: Number(amount),
+          interestRate: Number(interestRate),
+          startDate,
+          endDate,
+        }),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message);
+        throw new Error(data.message || "Failed to add loan");
       }
 
       navigate(`/person/${id}`);
@@ -53,16 +65,14 @@ function AddLoan() {
     <div className="add-loan-page">
       <div className="loan-card">
         <h2>Add Loan</h2>
-        <p className="subtitle">
-          Enter loan details for this person
-        </p>
+        <p className="subtitle">Enter loan details for this person</p>
 
         {error && <p className="error-text">{error}</p>}
 
         <form onSubmit={handleSubmit}>
           <div className="form-row">
             <div className="form-group">
-              <label>Loan Amount</label>
+              <label>Loan Amount (₹)</label>
               <input
                 type="number"
                 placeholder="e.g. 50000"
@@ -72,23 +82,34 @@ function AddLoan() {
             </div>
 
             <div className="form-group">
-              <label>Interest (%)</label>
+              <label>Interest Rate % (yearly)</label>
               <input
                 type="number"
-                placeholder="e.g. 5"
-                value={interest}
-                onChange={(e) => setInterest(e.target.value)}
+                placeholder="e.g. 12"
+                value={interestRate}
+                onChange={(e) => setInterestRate(e.target.value)}
               />
             </div>
           </div>
 
-          <div className="form-group">
-            <label>Note (optional)</label>
-            <textarea
-              placeholder="Purpose of loan, remarks…"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-            />
+          <div className="form-row">
+            <div className="form-group">
+              <label>Start Date</label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>End Date</label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+              />
+            </div>
           </div>
 
           <div className="actions">
