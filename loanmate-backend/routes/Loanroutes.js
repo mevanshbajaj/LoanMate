@@ -1,4 +1,5 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const Loan = require("../models/Loan");
 const authMiddleware = require("../middleware/auth");
 
@@ -36,7 +37,7 @@ router.post("/", authMiddleware, async (req, res) => {
 
     const loan = await Loan.create({
       personId,
-      userId: req.userId, // ✅ from authMiddleware
+      userId: req.userId,
       amount: principal,
       interestRate: rate,
       startDate,
@@ -117,6 +118,46 @@ router.get("/summary/all", authMiddleware, async (req, res) => {
     const activeLoans = loans.filter((l) => l.status === "ACTIVE").length;
 
     res.json({ totalGiven, totalPaid, totalPending, activeLoans });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+/* MONTHLY STATS — last 6 months for chart */
+router.get("/monthly-stats", authMiddleware, async (req, res) => {
+  try {
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+    const stats = await Loan.aggregate([
+      {
+        $match: {
+          userId: new mongoose.Types.ObjectId(req.userId),
+          createdAt: { $gte: sixMonthsAgo },
+        },
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } },
+          given: { $sum: "$amount" },
+          paid: { $sum: "$amountPaid" },
+          pending: { $sum: "$amountPending" },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    const formatted = stats.map((s) => ({
+      month: new Date(s._id + "-01").toLocaleString("en-IN", {
+        month: "short",
+        year: "2-digit",
+      }),
+      given: s.given,
+      paid: s.paid,
+      pending: s.pending,
+    }));
+
+    res.json(formatted);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

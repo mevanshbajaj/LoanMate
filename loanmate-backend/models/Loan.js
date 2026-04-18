@@ -85,4 +85,7 @@ const loanSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+loanSchema.index({ userId: 1 });
+loanSchema.index({ personId: 1, userId: 1 });
+
 module.exports = mongoose.model("Loan", loanSchema);

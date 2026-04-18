@@ -11,7 +11,6 @@ const addPerson = async (req, res) => {
       });
     }
 
-    // 🔥 Check only within this user
     const existingPerson = await Person.findOne({
       phone,
       userId: req.userId,
@@ -27,23 +26,22 @@ const addPerson = async (req, res) => {
       name,
       phone,
       address,
-      userId: req.userId, // 🔥 Important
+      userId: req.userId,
     });
 
     res.status(201).json(person);
   } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
+    if (error.code === 11000) {
+      return res.status(400).json({ message: "Person with this phone already exists" });
+    }
+    res.status(500).json({ message: error.message });
   }
 };
 
 // GET /api/persons
 const getAllPersons = async (req, res) => {
   try {
-    const persons = await Person.find({
-      userId: req.userId, // 🔥 Only logged-in user
-    }).sort({ createdAt: -1 });
+    const persons = await Person.find({ userId: req.userId }).sort({ createdAt: -1 });
 
     res.json(persons);
   } catch (error) {
@@ -58,7 +56,7 @@ const getPersonById = async (req, res) => {
   try {
     const person = await Person.findOne({
       _id: req.params.id,
-      userId: req.userId, // 🔥 Protect access
+      userId: req.userId,
     });
 
     if (!person) {
