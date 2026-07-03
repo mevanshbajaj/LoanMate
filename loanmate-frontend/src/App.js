@@ -8,6 +8,7 @@ import AddPerson from "./pages/AddPerson";
 import PersonDetail from "./pages/PersonDetail";
 import AddLoan from "./pages/AddLoan";
 
+
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem("token");
   return token ? children : <Navigate to="/" replace />;
